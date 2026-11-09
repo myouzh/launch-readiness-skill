@@ -1,0 +1,80 @@
+# 项目代码审阅 — 内部草稿
+
+不是安全认证或上线许可。静态源码不等于已部署行为。
+
+合成示例 · scoped · 审阅进度: 约定范围审阅已完成
+
+实际技术栈（审阅者判断）: 服务端 JavaScript / Express 5.1.0（依赖声明） / Prisma Client 6.0.0 / Document 模型 / jsonwebtoken 9.0.0 / JWT 验证；未提供签发登录流程
+
+[owner.html](owner.html)
+
+## 范围与限制
+
+**审阅者**: DeepSeek Harness 中的 gpt-6.1-sol 编码助手；只读 AI 静态推理，非独立专家复核。
+
+**模型处理授权**: 自制合成评测材料，无客户数据或凭证；评测委托允许当前 gpt-6.1-sol（经 DeepSeek Harness/API）处理源码上下文，不是纯离线模型；供应方留存策略未知。本样例不继承任何真实客户授权。
+
+### 已审阅
+- 读取本项目全部 6 个文件；从 JWT 验证、路由挂载、handler、查询/helper 到 Document 模型追查文档读取。
+- 按文档内容跨租户披露影响选链；快照只有这一条真实业务链，无需凑两到四条或补充弱发现。
+
+### 未审阅
+- 登录/令牌签发与租户归属分配未提供；数据库类型、datasource、部署配置及数据库外部策略未提供。
+- 支付业务适用性未由 owner 声明；不检查支付链，不由没有 Stripe 推断无付费业务。
+- 无部署系统、无 TEST 运行授权、无真实复现记录；不执行项目、依赖安装、测试、网络访问或修复。
+
+### 限制
+- completed 仅表示约定静态链路已审阅，不是总体安全许可、渗透测试、生产验证或上线认可。
+- 独立数据库策略与运行连通性不可从简化模型判断；不声称 Prisma 必然绕过策略。十项固定 unknown 仅收集器占位，不是本项目结论。
+- 数据留存未另行约定；无真实客户材料。最终评测产物按本地评测流程保留；临时证据建议由委托方于交付后七日内（2026-11-16，Asia/Shanghai）人工清理并记录例外，未安排删除，不能承诺移除供应方副本。
+- 十四日原范围复核窗口不延长临时材料留存；后续复核需新授权快照。
+
+## 已追查链路
+
+### C-001 · 已验证身份 → 挂载 GET 文档路由 → 租户 helper → scoped 查询 → 文档返回
+已追查
+先由已挂载中间件验证 JWT 并拒绝无 tenantId 身份，再由 handler 把 req.user 交给 helper。helper 再验 tenantId，将调用方控制的文档 id 与服务端验证身份中的 tenantId 联合查询；异租户文档不满足条件则 handler 返回 404。单看 handler 无租户条件的怀疑被 helper 实现推翻：未形成文档跨租户读取问题，不要求冗余修补。
+E-002, E-003 → E-001, E-002, E-003, E-004, E-005, E-006
+- 仅一条可追查的文档业务链；身份入口是令牌验证，登录签发与成员关系不在快照中。
+- 结论依赖签名身份 tenantId 的可信分配；未执行双租户 TEST，未证明部署隔离或其他链安全。
+- 建议仅在另行授权的隔离 TEST 用两租户合成文档验证同租户成功、异租户及不存在 ID 均 404、无租户 403、无效令牌 401；本次不执行。
+
+## 项目关注点
+
+本次已审阅范围内尚未形成项目具体问题，不代表可以安全上线。
+
+## 证据索引
+
+- E-001 · package.json:1–1 · SHA256 039b1a7a39f3cf83870f8e83eadb03511939787fd1164df4b806658ecab9b7a3 · 依赖声明为 Express 5.1.0、Prisma Client 6.0.0、jsonwebtoken 9.0.0；不证明实际安装版本。
+- E-002 · server.js:1–7 · SHA256 7a0082ee4514243588924e2ec33452f4a6f842a5b4aeb7612176f77412964acf · Express 先为 /api 挂载 requireUser，再注册按文档 ID 读取的 GET 路由。
+- E-003 · auth.js:1–8 · SHA256 72ba3aa2d006fe4d42cc013c0b2816fb61c8c1d7c4b28b0c161cd2be7d3d8737 · 验证请求 JWT 后要求身份含 tenantId；缺失租户拒绝 403，异常拒绝 401。
+- E-004 · documents.js:1–6 · SHA256 7e216ea35b94318dcd3672b3597c9ff6f37db97c47042a8ebb6853efb2961c7d · handler 将验证所得身份传入 scopedDocuments，读取请求 ID；查无结果 404，命中返回整行。
+- E-005 · schema.prisma:1–5 · SHA256 bb9e3de9b6d82c794c3fb3f1c355e7f3c5af7b0d398e65c55f04e0b98314601f · Document 含全局主键 id、tenantId 与 content；租户字段本身不是访问控制。
+- E-006 · repository.js:1–6 · SHA256 23b0d27887de58b82638fb654e796f192cb599c161a6584e9889bba7a7651ac5 · 共享 helper 拒绝无租户身份，并将文档 ID 与身份 tenantId 同时下推至 Prisma 查询。
+
+## 收集器附录（不是项目诊断）
+
+result.json · schema 0.1 · static_only
+review.json · schema 1.0
+SHA256: 1d37f97aabaf29c4da6ad7684d50804ba7c67bdae915a0a7b4c206b2f2601eac
+UTC: 2026-11-09T09:29:04.298638+00:00
+
+~~~json
+{
+  "coverage": {
+    "files_scanned": 6,
+    "bytes_scanned": 1215,
+    "bytes_read": 1215,
+    "skipped": [],
+    "skipped_omitted": 0,
+    "limits_reached": false
+  },
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "unknown": 10,
+    "not_applicable": 0,
+    "tool_error": 0
+  }
+}
+~~~

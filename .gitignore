@@ -1,0 +1,16 @@
+# Local caches
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+
+# Never keep customer material in this source tree
+.env
+.env.*
+!.env.example
+customer-data/
+reports/
+outputs/
+*-workspace/
+/result.json
+/report*.md

@@ -1,0 +1,5 @@
+model Document {
+  id String @id
+  tenantId String
+  content String
+}

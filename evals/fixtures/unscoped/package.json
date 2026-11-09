@@ -1,0 +1,1 @@
+{"name":"synthetic-review-fixture","dependencies":{"express":"5.1.0","@prisma/client":"6.0.0","jsonwebtoken":"9.0.0"}}

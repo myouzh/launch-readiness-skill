@@ -1,0 +1,151 @@
+{
+  "schema_version": "0.1",
+  "mode": "static_only",
+  "snapshot": {
+    "root_label": "scoped",
+    "revision_declared": null,
+    "manifest_sha256": "1d37f97aabaf29c4da6ad7684d50804ba7c67bdae915a0a7b4c206b2f2601eac",
+    "checked_at": "2026-11-09T09:29:04.298638+00:00"
+  },
+  "coverage": {
+    "files_scanned": 6,
+    "bytes_scanned": 1215,
+    "bytes_read": 1215,
+    "skipped": [],
+    "skipped_omitted": 0,
+    "limits_reached": false
+  },
+  "findings": [
+    {
+      "rule_id": "PAY-01",
+      "module": "payments",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Server-side pricing and entitlement decisions",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Confirm the server derives price and entitlement from trusted records; verify in Stripe test mode.",
+      "retest": "Confirm the server derives price and entitlement from trusted records; verify in Stripe test mode."
+    },
+    {
+      "rule_id": "PAY-02",
+      "module": "payments",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Webhook authenticity and duplicate handling",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Inspect signature validation and replay handling; reproduce safely with synthetic test events.",
+      "retest": "Inspect signature validation and replay handling; reproduce safely with synthetic test events."
+    },
+    {
+      "rule_id": "AUTH-01",
+      "module": "auth",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Cross-account and cross-tenant access",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Use two authorized synthetic accounts in an isolated environment to test read and write isolation.",
+      "retest": "Use two authorized synthetic accounts in an isolated environment to test read and write isolation."
+    },
+    {
+      "rule_id": "AUTH-02",
+      "module": "auth",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Administrative role assignment",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Inspect server-side role assignment and test that an ordinary test account cannot elevate privileges.",
+      "retest": "Inspect server-side role assignment and test that an ordinary test account cannot elevate privileges."
+    },
+    {
+      "rule_id": "DATA-01",
+      "module": "data",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Deployed policies and storage access",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Compare current deployed policies and storage permissions with the intended access matrix.",
+      "retest": "Compare current deployed policies and storage permissions with the intended access matrix."
+    },
+    {
+      "rule_id": "DATA-02",
+      "module": "data",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Sensitive logging and credential exposure",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Review deployment secrets, generated browser bundles, logs and credential lifecycle; this scan covers limited source patterns only.",
+      "retest": "Review deployment secrets, generated browser bundles, logs and credential lifecycle; this scan covers limited source patterns only."
+    },
+    {
+      "rule_id": "BACKUP-01",
+      "module": "backup",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Backup coverage and retention",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Obtain current backup configuration and identify which database and file assets it covers.",
+      "retest": "Obtain current backup configuration and identify which database and file assets it covers."
+    },
+    {
+      "rule_id": "BACKUP-02",
+      "module": "backup",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Successful isolated restore",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Review a recent restore record or arrange an authorized restore into an isolated copy, never over production.",
+      "retest": "Review a recent restore record or arrange an authorized restore into an isolated copy, never over production."
+    },
+    {
+      "rule_id": "FAIL-01",
+      "module": "failure",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Timeout, retry and duplicate behavior",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Verify the two agreed workflows under controlled failure conditions in a test environment.",
+      "retest": "Verify the two agreed workflows under controlled failure conditions in a test environment."
+    },
+    {
+      "rule_id": "FAIL-02",
+      "module": "failure",
+      "severity": "undetermined",
+      "status": "unknown",
+      "evidence": [],
+      "affected_flow": "Alerting, rate limiting and rollback",
+      "business_impact": "Not established from this static scan; relevant business risk remains unverified.",
+      "recommendation": "Inspect alert delivery, rate-limit configuration and a documented rollback plan; do not load-test production.",
+      "retest": "Inspect alert delivery, rate-limit configuration and a documented rollback plan; do not load-test production."
+    }
+  ],
+  "summary": {
+    "decision": "insufficient_evidence",
+    "counts": {
+      "pass": 0,
+      "fail": 0,
+      "unknown": 10,
+      "not_applicable": 0,
+      "tool_error": 0
+    },
+    "limitations": [
+      "Internal draft: not professionally validated or a security certification.",
+      "Static source inspection only; no live environment, payments, tenant access, backup restore or failure-mode testing.",
+      "No match does not prove absence of secrets. Only a small set of credential-shaped patterns is checked.",
+      "Credential-shaped matches are unverified candidates; validity, deployment and exposure are unknown until reviewed.",
+      "Public anon/publishable keys are not treated as privileged secrets; their presence does not prove correct permissions.",
+      "Ignored directories, symlinks, binary files and configured limits are outside coverage. No git history is inspected.",
+      "A directory manifest identifies inspected bytes, not a production deployment or complete repository revision.",
+      "Metadata labels longer than 512 characters are truncated; at most 200 exclusion records are retained, with omitted counts reported.",
+      "The byte budget counts all file reads, including rejected content. Directory enumeration is not a strict memory sandbox; use a small, stable local snapshot."
+    ]
+  }
+}

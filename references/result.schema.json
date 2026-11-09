@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Launch Readiness static collector result — INTERNAL DRAFT",
+  "$comment": "Structural schema only. render_report.py additionally enforces exactly one of each of the ten unknown controls, allowed rule/module/severity/status combinations and count/decision consistency. This schema is not a signature or evidence authenticity check. A merged human review uses a separate template, not this static result.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "mode", "snapshot", "coverage", "findings", "summary"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "mode": {"const": "static_only"},
+    "snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["root_label", "revision_declared", "manifest_sha256", "checked_at"],
+      "properties": {
+        "root_label": {"$ref": "#/$defs/label"},
+        "revision_declared": {"type": ["string", "null"], "maxLength": 512},
+        "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "checked_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "coverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["files_scanned", "bytes_scanned", "bytes_read", "skipped", "skipped_omitted", "limits_reached"],
+      "properties": {
+        "files_scanned": {"$ref": "#/$defs/count"},
+        "bytes_scanned": {"$ref": "#/$defs/count"},
+        "bytes_read": {"$ref": "#/$defs/count"},
+        "skipped_omitted": {"$ref": "#/$defs/count"},
+        "limits_reached": {"type": "boolean"},
+        "skipped": {
+          "type": "array", "maxItems": 200,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "reason"],
+            "properties": {"path": {"$ref": "#/$defs/label"}, "reason": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "findings": {"type": "array", "minItems": 10, "maxItems": 211, "items": {"$ref": "#/$defs/finding"}},
+    "summary": {
+      "type": "object", "additionalProperties": false, "required": ["decision", "counts", "limitations"],
+      "properties": {
+        "decision": {"enum": ["static_blockers_found", "insufficient_evidence"]},
+        "counts": {
+          "type": "object", "additionalProperties": false,
+          "required": ["pass", "fail", "unknown", "not_applicable", "tool_error"],
+          "properties": {
+            "pass": {"const": 0}, "fail": {"$ref": "#/$defs/count"}, "unknown": {"const": 10},
+            "not_applicable": {"const": 0}, "tool_error": {"type": "integer", "minimum": 0, "maximum": 1}
+          }
+        },
+        "limitations": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/text"}}
+      }
+    }
+  },
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "label": {"type": "string", "maxLength": 512},
+    "text": {"type": "string", "maxLength": 4096},
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_id", "module", "severity", "status", "evidence", "affected_flow", "business_impact", "recommendation", "retest"],
+      "properties": {
+        "rule_id": {"enum": ["PAY-01", "PAY-02", "AUTH-01", "AUTH-02", "DATA-01", "DATA-02", "BACKUP-01", "BACKUP-02", "FAIL-01", "FAIL-02", "DATA-SECRET-SUPABASE", "DATA-SECRET-STRIPE-LIVE", "DATA-SECRET-STRIPE-TEST", "DATA-PRIVATE-KEY", "DATA-SECRET-SERVICE-ROLE", "SCAN-COVERAGE"]},
+        "module": {"enum": ["payments", "auth", "data", "backup", "failure"]},
+        "severity": {"enum": ["high", "medium", "undetermined"]},
+        "status": {"enum": ["fail", "unknown", "tool_error"]},
+        "evidence": {
+          "type": "array", "maxItems": 20,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "line", "summary"],
+            "properties": {"path": {"$ref": "#/$defs/label"}, "line": {"type": "integer", "minimum": 1}, "summary": {"$ref": "#/$defs/text"}}
+          }
+        },
+        "affected_flow": {"$ref": "#/$defs/text"},
+        "business_impact": {"$ref": "#/$defs/text"},
+        "recommendation": {"$ref": "#/$defs/text"},
+        "retest": {"$ref": "#/$defs/text"}
+      }
+    }
+  }
+}
